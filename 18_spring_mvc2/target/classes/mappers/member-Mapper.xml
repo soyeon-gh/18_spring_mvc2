@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mapper xml 파일임을 명시하기 위한 DTD 선언 (구글 검색 및 마이바티스 공식 홈페이지에서 참조할 수 있다.) -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="member">
+	
+	<select id="selectAllMember" resultType="MemberDTO">
+		SELECT
+				*
+		FROM
+				T_MEMBER
+	</select>
+
+
+	<insert id="insertMemberDTO" parameterType="MemberDTO">
+		INSERT INTO T_MEMBER 
+		VALUES(
+			#{id},
+			#{pw},
+			#{name},		
+			#{gender},		
+			#{birthY},		
+			#{birthM},		
+			#{birthD},		
+			#{birthGn},		
+			#{hp1},		
+			#{hp2},		
+			#{hp3},		
+			#{smsstsYn},		
+			#{email},		
+			#{emailstsYn}		
+		)
+	</insert>
+	
+	<insert id="insertMemberMap" parameterType="Map">
+		INSERT INTO T_MEMBER 
+		VALUES(
+			#{id},
+			#{pw},
+			#{name},		
+			#{gender},		
+			#{birthY},		
+			#{birthM},		
+			#{birthD},		
+			#{birthGn},		
+			#{hp1},		
+			#{hp2},		
+			#{hp3},		
+			#{smsstsYn},		
+			#{email},		
+			#{emailstsYn}		
+		)
+	</insert>
+
+</mapper>

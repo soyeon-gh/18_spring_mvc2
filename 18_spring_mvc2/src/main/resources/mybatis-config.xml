@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">	<!-- Mybatis 설정 파일임을 명시하기 위한 DTD 선언 -->
+<configuration>
+
+	 <!-- 
+  	
+  		Mybatis에서 resultMap 혹은 AS를 사용하지 않아도
+  		_형식의 DB 컬럼명과 camelcase의 자바변수를 매치하여 준다.
+  	
+  	 -->
+
+	<settings>
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+	</settings>
+	
+	<!-- 
+	
+		- 코드의 길이가 길어질 경우 mybatis-config 파일에 <typeAlias>태그로 alias(별명,별칭)을 지정하여 간편하게 사용할 수 있다.
+	
+	    예시)
+		<typeAliases>
+			<typeAlias type="com.spring.dto.MemberDTO"  alias="MemberDTO" />
+			<typeAlias type="com.spring.dto.ProductDTO" alias="ProductDTO"/>
+			<typeAlias type="com.spring.dto.MessageDTO" alias="MessageDTO"/>
+		</typeAliases>
+		
+	 -->
+	
+	<typeAliases>
+		<typeAlias type="com.spring.mvc2.data_transfer.domain.OrderDTO" alias="OrderDTO"/>		
+		<typeAlias type="com.spring.mvc2.data_transfer.domain.MemberDTO" alias="MemberDTO"/>		
+	</typeAliases>
+	
+</configuration>

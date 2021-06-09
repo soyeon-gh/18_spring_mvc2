@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- mapper xml 파일임을 명시하기 위한 DTD 선언 (구글 검색 및 마이바티스 공식 홈페이지에서 참조할 수 있다.) -->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> 
+
+<mapper namespace="order">
+
+	<insert id="insertOneData" parameterType="String">
+		
+		<!-- 		
+		
+		  	${값}  , #{값}
+		${값} : statement
+			- 전달 받은 데이터를 쿼리문에서 ${값}  , #{값}과 같은 형태로 사용된다.
+			- 주로 #{값} 형태(preparedStatement)를 사용하며 이 형태를 권장한다.
+			- 대소문자를 구분한다.
+		
+		-->
+	
+		<!--  
+			
+			 동적 쿼리문
+		
+		
+			- JSTL과 같이 <if> <when> <otherwise>를 사용하여 쿼리를 동적으로 사용할 수 있다. 
+			
+			- '' , "" 모두 사용 가능하다.  	
+				예시) 
+					<when test = '조건식'>
+					<when test = "조건식" > 
+			
+			- (자주 실수하는 부분1) 조건식에서 연산자 사용시 && || 대신에 and , or 를 사용해야 한다.
+			- (자주 실수하는 부분2) JSTL과 구문이 굉장히 비슷하여 JSTL형태로 Mybatis에서 작성하는 경우
+				
+				예시)
+					       			 JSTL				    MyBatis 
+				표기법 		:    	${}				/	     #{}
+				if    		:  		<c:if>			/		 <if>
+				choose		:  		<c:choose>  	/	   <choose>
+				when		: 		<c:when>	 	/ 		 <when>
+				otherwise 	: 		<c:otherwise> 	/ 	   <otherwise>		
+				foreach		:		<c:forEach>		/	 	<foreach>
+		-->
+	
+		INSERT INTO T_ORDER_LIST (
+				PRODUCT_CODE,
+				PRODUCT_NAME)
+		VALUES (
+			<choose>
+				<when test='productName.equals("기계식키보드")'>
+					"0x001"
+				</when>
+				<when test='productName.equals("무소음 마우스")'>
+					"0x002"
+				</when>
+				<when test='productName.equals("장패드")'>
+					"0x003"
+				</when>
+				<otherwise>
+					"없음"
+				</otherwise>
+			</choose> ,
+				#{productName})
+	</insert>
+
+	
+	<insert id="insertDTO" parameterType="OrderDTO">
+		INSERT INTO T_ORDER_LIST (
+				MEMBER_ID,
+				PRODUCT_CODE,
+				PRODUCT_NAME)
+		VALUES (
+				#{memberId},
+				#{productCode},
+				#{productName})
+	</insert>
+
+
+	<insert id="insertMap" parameterType="Map">
+		INSERT INTO T_ORDER_LIST (
+				MEMBER_ID,
+				PRODUCT_CODE,
+				PRODUCT_NAME)
+		VALUES (
+				#{memberId},
+				#{productCode},
+				#{productName})
+	</insert>
+	
+	<select id="selectAll" resultType="OrderDTO">
+		SELECT
+				*
+		FROM
+				T_ORDER_LIST
+	</select>
+
+	<!-- 단일 데이터 전송 예시 -->
+	
+	<select id="select1" resultType="int">
+		SELECT
+				COUNT(*)
+		FROM
+				T_ORDER_LIST
+	</select>
+	
+	<!-- DTO 전송 예시 -->
+	
+	<select id="select2" resultType="OrderDTO">
+		<!-- 
+		
+		<![CDATA[]]> 는 SQL 내부에 연산자가 있을 경우 사용한다. 
+		( '>' '<' 연산자가 태그와 혼동되기 때문 ) 
+		- 쿼리 내부에 연산자가 없어도 코드의 통일성을 주기 위해 <![CDATA[]]>를 사용하기도 한다. 
+		
+		-->
+		<![CDATA[
+		SELECT
+				*
+		FROM
+				T_ORDER_LIST
+		WHERE
+				TOTAL_PRICE > 50000
+		]]>
+		<!-- > < 이런 연산자는 그냥 쓰면 태그의 <>로 알아들어서 <!CDATA[]]>로 감싸준다 -->
+	</select>
+	
+	<!-- 
+	
+		# POJO의 변수와 Table의 Colume명 연결 방법
+	
+		- POJO의 변수명과 Table의 컬럼명이 일치할경우는 ( 두단어가 이어지는 경우가 없을때 ) 
+		  스프링 프레임워크에서 테이블명과 POJO의 변수를 연결하여 준다.
+		  
+		- 일반적으로 POJO의 변수는 CamelCase를 사용하고 테이블의 변수는 SnakeCase 사용하여 
+		  두 값이 일치하지 않는 경우는 추가적으로 연결하는 코드를 구현하여야 한다. 
+	
+			[ 예시 ]
+			
+			   [POJO]	   		[Table Colume]
+			productCode	  <>	  PRODUCT_CODE
+			productName	  <>      PRODUCT_NAME
+	
+		- 연결방법은 한가지 방법만 존재하는 것이 아닌 여러가지 방법이 있다.
+	
+			예시 1) mybatis-config파일에 아래의 태그를 추가한다.
+		
+				<settings>
+					<setting name="mapUnderscoreToCamelCase" value="true"/>
+				</settings>
+	
+	
+			예시 2) resultMap태그를 추가로 작성한다.
+		
+				<resultMap id="getProduct" type="000.000.000.Product">  		<< 식별id	, POJO클래스 전체 경로
+		       		<result property="productCode" column="PRODUCT_CODE"/>		<< 변수값   , 컬럼명
+		       		<result property="productName" column="PRODUCT_NAME"/>
+		    	</resultMap>
+		    	
+		    	<select id = ""  resultType="getProduct">						<< 식별id , resultMap의 id
+		    		SELECT
+						PRODUCT_CODE
+						PRODUCT_NAME
+					FROM
+						PRODUCT		
+		    	</select>
+		
+		
+			예시 3) 쿼리문에서 alias를 작성한다.
+			
+				<select id = "" >
+					SELECT
+						PRODUCT_CODE productCode
+						PRODUCT_NAME productName
+					FROM
+						PRODUCT		
+				</select>
+	
+	 -->
+	 
+	<resultMap type="Map" id="orderInfo">
+		<result column="MEMBER_ID" 		property="memberId"/>
+		<result column="ORDER_ID" 		property="orderId"/>
+		<result column="PRODUCT_NAME" 	property="productName"/>
+		<result column="TOTAL_PRICE" 	property="totalPrice"/>
+		<result column="TAX" 			property="tax"/>
+		<result column="AFTER_TAX" 		property="aftertax"/>
+		<result column="NAME" 			property="name"/>
+		<result column="EMAIL" 			property="email"/>
+		<result column="HP" 			property="hp"/>
+		
+	</resultMap>
+	
+	<!-- resultMap 전송예시 -->
+	
+	<select id="select3" resultMap="orderInfo">
+		SELECT
+				O.MEMBER_ID								AS MEMBER_ID,
+				O.ORDER_ID								AS ORDER_ID,
+				O.PRODUCT_NAME							AS PRODUCT_NAME,
+				O.TOTAL_PRICE							AS TOTAL_PRICE,
+				O.TOTAL_PRICE * 0.1						AS TAX,
+				O.TOTAL_PRICE - (O.TOTAL_PRICE * 0.1)	AS AFTER_TAX,
+				M.NAME									AS NAME,
+				M.EMAIL									AS EMAIL,
+				CONCAT(M.HP1, "-", M.HP2, "-", M.HP3)	AS HP
+		FROM
+				T_ORDER_LIST O,
+				T_MEMBER M
+		WHERE
+				O.MEMBER_ID = M.ID AND M.ID = "user1"
+				
+	</select>
+	
+	<!-- resultMap 전송예시 -->
+	
+	<select id="select4" resultType="map">
+		SELECT
+				O.MEMBER_ID								AS memberId,
+				O.ORDER_ID								AS orderId,
+				O.PRODUCT_NAME							AS productName,
+				O.TOTAL_PRICE							AS totalPrice,
+				O.TOTAL_PRICE * 0.1						AS tax,
+				O.TOTAL_PRICE - (O.TOTAL_PRICE * 0.1)	AS aftertax,
+				M.NAME									AS name,
+				M.EMAIL									AS email,
+				CONCAT(M.HP1, "-", M.HP2, "-", M.HP3)	AS hp
+		FROM
+				T_ORDER_LIST O,
+				T_MEMBER M
+		WHERE
+				O.MEMBER_ID = M.ID AND M.ID = "user1"
+				
+	</select>
+</mapper>
